@@ -1,0 +1,149 @@
+'use client';
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import { cn } from '@/utils/cn';
+
+interface ComposedChartComponentProps {
+  data: any[];
+  bars?: Array<{
+    dataKey: string;
+    name: string;
+    color: string;
+  }>;
+  lines?: Array<{
+    dataKey: string;
+    name: string;
+    color: string;
+    strokeWidth?: number;
+  }>;
+  title?: string;
+  description?: string;
+  height?: number;
+  showGrid?: boolean;
+  showLegend?: boolean;
+  showTooltip?: boolean;
+  animate?: boolean;
+  className?: string;
+}
+
+const CustomComposedTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-bnb-card border border-bnb-border rounded-lg p-3 shadow-premium"
+      >
+        <p className="text-sm font-semibold text-gray-300 mb-2">{label}</p>
+        {payload.map((entry: any, idx: number) => (
+          <p key={idx} style={{ color: entry.color }} className="text-sm font-medium">
+            {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+          </p>
+        ))}
+      </motion.div>
+    );
+  }
+  return null;
+};
+
+const ComposedChartComponent: React.FC<ComposedChartComponentProps> = ({
+  data,
+  bars = [],
+  lines = [],
+  title,
+  description,
+  height = 400,
+  showGrid = true,
+  showLegend = true,
+  showTooltip = true,
+  animate = true,
+  className,
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={cn(
+        'rounded-xl p-6 bg-gradient-to-br from-bnb-card to-bnb-dark border border-bnb-border shadow-card',
+        className
+      )}
+    >
+      {/* Header */}
+      {(title || description) && (
+        <div className="mb-6">
+          {title && <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>}
+          {description && <p className="text-sm text-gray-400">{description}</p>}
+        </div>
+      )}
+
+      {/* Chart */}
+      <ResponsiveContainer width="100%" height={height}>
+        <ComposedChart data={data} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+          {showGrid && (
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#1a1a1a"
+              vertical={false}
+            />
+          )}
+          <XAxis
+            dataKey="name"
+            stroke="#6b7280"
+            style={{
+              fontSize: '12px',
+            }}
+          />
+          <YAxis
+            stroke="#6b7280"
+            style={{
+              fontSize: '12px',
+            }}
+          />
+          {showTooltip && <Tooltip content={<CustomComposedTooltip />} />}
+          {showLegend && <Legend wrapperStyle={{ paddingTop: '20px' }} />}
+          {bars.map((bar, idx) => (
+            <Bar
+              key={idx}
+              dataKey={bar.dataKey}
+              name={bar.name}
+              fill={bar.color}
+              isAnimationActive={animate}
+              animationDuration={1000}
+              animationBegin={idx * 100}
+              radius={[8, 8, 0, 0]}
+            />
+          ))}
+          {lines.map((line, idx) => (
+            <Line
+              key={idx}
+              type="monotone"
+              dataKey={line.dataKey}
+              name={line.name}
+              stroke={line.color}
+              strokeWidth={line.strokeWidth || 2.5}
+              dot={false}
+              isAnimationActive={animate}
+              animationDuration={1000}
+              animationBegin={(bars.length + idx) * 100}
+            />
+          ))}
+        </ComposedChart>
+      </ResponsiveContainer>
+    </motion.div>
+  );
+};
+
+export default ComposedChartComponent;
