@@ -1,6 +1,7 @@
-import '@/styles/globals.css';
 import type { Metadata } from 'next';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { Providers } from '@/app/providers';
+import '@/styles/globals.css';
 
 export const metadata: Metadata = {
   title: 'Black N Bold - Premium Ad Analytics',
@@ -21,7 +22,9 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AuthProvider>{children}</AuthProvider>
+        </Providers>
       </body>
     </html>
   );
